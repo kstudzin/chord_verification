@@ -1,0 +1,28 @@
+MODULE main
+
+  VAR
+    node1 : node(10, 20, node2, node3);
+    node2 : node(20, 30, node1, node3);
+    node3 : node(30, 10, node1, node2);
+    active_node : {node1, node2, node3};
+
+    TRANS
+      TRUE -> (next(node1.mode) = find_successor & next(node1.n) = 15);
+
+LTLSPEC
+  F (node1.mode = found_successor) |
+    (node2.mode = found_successor) |
+    (node3.mode = found_successor)
+
+MODULE node(id, successor_id, finger1, finger2)
+
+  VAR
+    n : 0..255;
+    mode : {waiting, find_successor, found_successor, closest_preceding, test_finger, next_node, return_current};
+
+  INIT
+    mode = waiting;
+
+  TRANS
+    (mode = find_successor & ((id < successor_id & id < n & n <= successor_id) |
+      (successor_id < id & (n > id | n <= successor_id)))) -> next(mode) = found_successor;
