@@ -4,14 +4,13 @@ MODULE main
     node1 : node(10, 20, node2, node3);
     node2 : node(20, 30, node1, node3);
     node3 : node(30, 10, node1, node2);
-    active_node : {node1, node2, node3};
     initiate : boolean;
 
     INIT
       initiate = TRUE;
 
     TRANS
-      (initiate -> (next(node1.mode) = find_successor & next(node1.n) = 25 & initiate = FALSE)) &
+      (initiate -> (next(node1.mode) = find_successor & next(node1.n) = 15 & next(initiate) = FALSE)) &
       (!initiate -> next(initiate) = initiate);
 
 LTLSPEC
@@ -38,16 +37,4 @@ MODULE node(id, successor_id, finger1, finger2)
 
   TRANS
     -- if successor responsible for n
-    ((mode = find_successor & (
-        (id < successor_id & id < n & n <= successor_id) |
-        (successor_id < id & (n > id | n <= successor_id))
-      )) -> (next(mode) = found_successor & next(n) = n)) &
-
-    -- if successor not responsible for n
-    ((mode = find_successor & !((id < successor_id & id < n & n <= successor_id) |
-      (successor_id < id & (n > id | n <= successor_id)))) -> (next(mode) = closest_preceding & next(n) = n)) &
-
-    -- (mode = closest_preceding &  -> ) &
-
-    -- All other cases
-    (mode != find_successor -> next(n) = n & next(mode) = mode & next(id) = id & next(successor_id) = successor_id);
+    ((mode = find_successor & id < n & n <= successor_id) -> (next(mode) = found_successor & next(n) = n));
