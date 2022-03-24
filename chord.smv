@@ -24,6 +24,9 @@ LTLSPEC
      (node2.mode = next_node) |
      (node3.mode = next_node));
 
+LTLSPEC
+  node1.mode = return_current;
+
 MODULE node(id, successor_id, finger1, finger2)
 
   VAR
@@ -34,10 +37,17 @@ MODULE node(id, successor_id, finger1, finger2)
     mode = waiting;
 
   TRANS
+    -- if successor responsible for n
     ((mode = find_successor & (
         (id < successor_id & id < n & n <= successor_id) |
         (successor_id < id & (n > id | n <= successor_id))
       )) -> (next(mode) = found_successor & next(n) = n)) &
+
+    -- if successor not responsible for n
     ((mode = find_successor & !((id < successor_id & id < n & n <= successor_id) |
       (successor_id < id & (n > id | n <= successor_id)))) -> (next(mode) = closest_preceding & next(n) = n)) &
+
+    -- (mode = closest_preceding &  -> ) &
+
+    -- All other cases
     (mode != find_successor -> next(n) = n & next(mode) = mode & next(id) = id & next(successor_id) = successor_id);
