@@ -19,7 +19,7 @@ LTLSPEC
      (node3.mode = found_successor));
 
 LTLSPEC
-  F ((node1.mode = next_node) |
+  G ((node1.mode = next_node) |
      (node2.mode = next_node) |
      (node3.mode = next_node));
 
@@ -39,4 +39,6 @@ MODULE node(id, successor_id, finger1, finger2)
     -- if successor responsible for n
     ((mode = find_successor & ((id < successor_id & id < n & n <= successor_id )| (n > id | n <= successor_id ))) -> (next(mode) = found_successor & next(n) = n)) &
 
-    ((mode = find_successor & !((id < successor_id & id < n & n <= successor_id )| (n > id | n <= successor_id ))) -> (next(mode) = closest_preceding & next(n) = n));
+    ((mode = find_successor & !((id < successor_id & id < n & n <= successor_id )| (n > id | n <= successor_id ))) -> (next(mode) = closest_preceding & next(n) = n)) &
+
+    (mode != find_successor -> (next(mode) = waiting & next(n) = n));
