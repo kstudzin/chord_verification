@@ -109,9 +109,6 @@ MODULE main
       esac;
 
 INVARSPEC
-  node2.mode = waiting;
-
-INVARSPEC
   !(index1 < 0)
 
 INVARSPEC
@@ -121,13 +118,7 @@ INVARSPEC
   !(index3 < 0)
 
 LTLSPEC
-  F node1.mode = found_successor;
-
-LTLSPEC
-  F node3.mode = find_successor;
-
-LTLSPEC
-  !(F node1.mode = found_successor);
+  ((G (n > 10 | n <= 20)) & (F node1.mode = found_successor));
 
 MODULE node(id_i, successor_id_i, fingers_i)
 
