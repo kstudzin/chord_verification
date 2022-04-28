@@ -2,17 +2,63 @@ MODULE main
 
   FROZENVAR
     n : 0..255;
+    fingers1 : array 0..1 of 0..255;
+    fingers2 : array 0..1 of 0..255;
+    fingers3 : array 0..1 of 0..255;
 
   VAR
-    node1 : node(10, 20, n);
-    node2 : node(20, 30, n);
-    node3 : node(30, 10, n);
+    node1 : node(10, 20, fingers1);
+    node2 : node(20, 30, fingers2);
+    node3 : node(30, 10, fingers3);
+    index1 : 0..1;
+    index2 : 0..1;
+    index3 : 0..1;
 
   ASSIGN
     init(n) := 15;
     init(node1.mode) := find_successor;
     init(node2.mode) := waiting;
     init(node3.mode) := waiting;
+
+    init(fingers1[0]) := 20;
+    init(fingers1[1]) := 30;
+
+    init(fingers2[0]) := 30;
+    init(fingers2[1]) := 10;
+
+    init(fingers3[0]) := 10;
+    init(fingers3[1]) := 20;
+
+    init(index1) := 1;
+    init(index2) := 1;
+    init(index3) := 1;
+
+    next(index1) :=
+      case
+        index1 = 0 : 1;
+        node1.mode = closest_preceding &
+          (fingers1[index1] < node1.id & fingers1[index1] < n & n < node1.id) |
+          (n > fingers1[index1] | n < node1.id) : index1 - 1 ;
+        TRUE : index1 ;
+      esac;
+
+    next(index2) :=
+      case
+        index2 = 0 : 1;
+        node2.mode = closest_preceding &
+          (fingers2[index2] < node2.id & fingers2[index2] < n & n < node2.id) |
+          (n > fingers2[index2] | n < node2.id) : index2 - 1;
+        TRUE : index2 ;
+      esac;
+
+    next(index3) :=
+      case
+        index3 = 0 : 1;
+        node3.mode = closest_preceding &
+          (fingers3[index3] < node3.id & fingers3[index3] < n & n < node3.id) |
+          (n > fingers3[index3] | n < node3.id) : index3 - 1;
+        TRUE : index3 ;
+      esac;
 
     next(node1.mode) :=
       case
@@ -22,34 +68,57 @@ MODULE main
         (node1.mode = find_successor & !(
           (node1.id < node1.successor_id & node1.id < n & n <= node1.successor_id ) |
           (n > node1.id | n <= node1.successor_id ))) : closest_preceding;
-        node1.mode != find_successor : node1.mode ;
+
+        node1.mode = waiting & node2.mode = closest_preceding & index2 = 1 : find_successor ;
+        node1.mode = waiting & node3.mode = closest_preceding & index3 = 0 : find_successor ;
+
+        node1.mode = closest_preceding &
+          (node2.mode = find_successor | node3.mode = find_successor) : waiting ;
+
+        TRUE : node1.mode ;
       esac;
 
-      next(node2.mode) :=
-        case
-          (node2.mode = find_successor & (
-            (node2.id < node2.successor_id & node2.id < n & n <= node2.successor_id ) |
-            (n > node2.id | n <= node2.successor_id ))) : found_successor;
-          (node2.mode = find_successor & !(
-            (node2.id < node2.successor_id & node2.id < n & n <= node2.successor_id ) |
-            (n > node2.id | n <= node2.successor_id ))) : closest_preceding;
-          node2.mode != find_successor : node2.mode ;
-        esac;
+    next(node2.mode) :=
+      case
+        (node2.mode = find_successor & (
+          (node2.id < node2.successor_id & node2.id < n & n <= node2.successor_id ) |
+          (n > node2.id | n <= node2.successor_id ))) : found_successor;
+        (node2.mode = find_successor & !(
+          (node2.id < node2.successor_id & node2.id < n & n <= node2.successor_id ) |
+          (n > node2.id | n <= node2.successor_id ))) : closest_preceding;
 
-      next(node3.mode) :=
-        case
-          (node3.mode = find_successor & (
-            (node3.id < node3.successor_id & node3.id < n & n <= node3.successor_id ) |
-            (n > node3.id | n <= node3.successor_id ))) : found_successor;
-          (node3.mode = find_successor & !(
-            (node3.id < node3.successor_id & node3.id < n & n <= node3.successor_id ) |
-            (n > node3.id | n <= node3.successor_id ))) : closest_preceding;
-          node3.mode = waiting & node1.mode = closest_preceding : find_successor;
-          node3.mode != find_successor : node3.mode ;
-        esac;
+        node2.mode = waiting & node1.mode = closest_preceding & index1 = 0 : find_successor;
+        node2.mode = waiting & node3.mode = closest_preceding & index3 = 1 : find_successor;
+
+        TRUE : node2.mode ;
+      esac;
+
+    next(node3.mode) :=
+      case
+        (node3.mode = find_successor & (
+          (node3.id < node3.successor_id & node3.id < n & n <= node3.successor_id ) |
+          (n > node3.id | n <= node3.successor_id ))) : found_successor;
+        (node3.mode = find_successor & !(
+          (node3.id < node3.successor_id & node3.id < n & n <= node3.successor_id ) |
+          (n > node3.id | n <= node3.successor_id ))) : closest_preceding;
+
+        node3.mode = waiting & node1.mode = closest_preceding & index1 = 1 : find_successor ;
+        node3.mode = waiting & node2.mode = closest_preceding & index2 = 0 : find_successor ;
+
+        TRUE : node3.mode ;
+      esac;
 
 INVARSPEC
   node2.mode = waiting;
+
+INVARSPEC
+  !(index1 < 0)
+
+INVARSPEC
+  !(index2 < 0)
+
+INVARSPEC
+  !(index3 < 0)
 
 LTLSPEC
   F node1.mode = found_successor;
@@ -60,7 +129,7 @@ LTLSPEC
 LTLSPEC
   !(F node1.mode = found_successor);
 
-MODULE node(id_i, successor_id_i, n)
+MODULE node(id_i, successor_id_i, fingers_i)
 
   FROZENVAR
     id : 0..255;
@@ -68,6 +137,9 @@ MODULE node(id_i, successor_id_i, n)
 
   VAR
     mode : {waiting, find_successor, found_successor, closest_preceding, test_finger, next_node, return_current};
+
+  DEFINE
+    fingers := fingers_i;
 
   ASSIGN
     init(id) := id_i;
