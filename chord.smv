@@ -6,27 +6,38 @@ MODULE main
     node3 : node(30, 10, node1, node2);
     initiate : boolean;
 
-    INIT
-      initiate = TRUE;
+  INIT
+    initiate = TRUE;
 
-    TRANS
-      (initiate -> (next(node1.mode) = find_successor & next(node1.n) = 15 & next(initiate) = FALSE)) &
+  TRANS
+    (initiate -> (next(node1.mode) = find_successor & next(node1.n) = 15 & next(initiate) = FALSE)) &
       (!initiate -> next(initiate) = initiate);
 
-LTLSPEC
-  F ((node1.mode = found_successor) |
-     (node2.mode = found_successor) |
-     (node3.mode = found_successor));
+-- true as expected
+INVARSPEC
+  node1.mode != next_node
 
-LTLSPEC
-  G ((node1.mode = next_node) |
-     (node2.mode = next_node) |
-     (node3.mode = next_node));
+-- false as expected
+INVARSPEC
+  node1.mode = next_node
 
+-- true
+-- if the invarspec shows that this state is unreachable
+-- how is this is this true
 LTLSPEC
-  node1.mode = return_current;
+  G node1.mode = next_node
 
-MODULE node(id, successor_id, finger1, finger2)
+-- true
+-- if the invarspec shows that this state is unreachable
+-- how is this is this true
+LTLSPEC
+  node1.mode = next_node
+
+MODULE node(id_i, successor_id_i, finger1, finger2_i)
+
+  FROZENVAR
+    id : 0..255;
+    successor_id : 0..255;
 
   VAR
     n : 0..255;
@@ -35,10 +46,14 @@ MODULE node(id, successor_id, finger1, finger2)
   INIT
     mode = waiting;
 
+  ASSIGN
+    init(id) := id_i;
+    init(successor_id) := successor_id_i;
+
   TRANS
     -- if successor responsible for n
     ((mode = find_successor & ((id < successor_id & id < n & n <= successor_id )| (n > id | n <= successor_id ))) -> (next(mode) = found_successor & next(n) = n)) &
 
     ((mode = find_successor & !((id < successor_id & id < n & n <= successor_id )| (n > id | n <= successor_id ))) -> (next(mode) = closest_preceding & next(n) = n)) &
 
-    (mode != find_successor -> (next(mode) = waiting & next(n) = n));
+    (mode != find_successor -> (next(mode) = mode & next(n) = n));
