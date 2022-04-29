@@ -157,15 +157,33 @@ MODULE main
         TRUE : node3.mode ;
       esac;
 
+-- Correct successor always found
 LTLSPEC
   ((G (n > 10 & n <= 20)) & (F node1.mode = found_successor)) xor
   ((G (n > 20 & n <= 30)) & (F node2.mode = found_successor)) xor
   ((G (n > 30 | n <= 10)) & (F node3.mode = found_successor));
 
+-- Only one node in mode found_successor with others in mode waiting
 LTLSPEC
-  node1.mode = find_successor xor
-  node2.mode = find_successor xor
-  node3.mode = find_successor;
+  F G ((node1.mode = found_successor & node2.mode = waiting & node3.mode = waiting) |
+       (node1.mode = waiting & node2.mode = found_successor & node3.mode = waiting) |
+       (node1.mode = waiting & node2.mode = waiting & node3.mode = found_successor)) ;
+
+-- When one node is in mode next_node, another node transitions into find_successor
+LTLSPEC
+  G (node1.mode = next_node -> X (node2.mode = find_successor | node3.mode = find_successor)) ;
+
+LTLSPEC
+  G (node2.mode = next_node -> X (node1.mode = find_successor | node3.mode = find_successor)) ;
+
+LTLSPEC
+  G (node3.mode = next_node -> X (node1.mode = find_successor | node2.mode = find_successor)) ;
+
+-- Always exactly one node not in mode waiting
+LTLSPEC
+  G (node1.mode != waiting xor
+     node2.mode != waiting xor
+     node3.mode != waiting) ;
 
 INVARSPEC
   (node1.mode != out_of_bounds);
@@ -175,6 +193,15 @@ INVARSPEC
 
 INVARSPEC
   (node3.mode != out_of_bounds);
+
+INVARSPEC
+  node1.mode = closest_preceding -> index1 = 2
+
+INVARSPEC
+  node2.mode = closest_preceding -> index2 = 2
+
+INVARSPEC
+  node3.mode = closest_preceding -> index3 = 2
 
 MODULE node(id_i, successor_id_i, fingers_i)
 
@@ -212,3 +239,9 @@ LTLSPEC
 
 LTLSPEC
   G ((mode = get_next_finger) -> X (mode = test_finger | mode = find_successor));
+
+LTLSPEC
+  G ((mode = test_finger) -> X (mode = get_next_finger | mode = find_successor | mode = next_node));
+
+LTLSPEC
+  G ((mode = next_node) -> X (mode = waiting));
