@@ -122,7 +122,7 @@ MODULE node(id_i, successor_id_i, fingers_i)
     successor_id : 0..255;
 
   VAR
-    mode : {waiting, find_successor, found_successor, closest_preceding, test_finger, next_node, return_current};
+    mode : {waiting, find_successor, found_successor, closest_preceding};
 
   DEFINE
     fingers := fingers_i;
