@@ -74,8 +74,6 @@ MODULE main
         node1.mode = get_next_finger & index1 < 0 : find_successor ;
 
         node1.mode = test_finger & index1 = -1 : find_successor ;
-
-        -- Temp
         node1.mode = test_finger & (index1 >= 2 | index1 <= -1) : out_of_bounds ;
 
         node1.mode = test_finger &
@@ -110,8 +108,6 @@ MODULE main
         node2.mode = get_next_finger & index2 < 0 : find_successor ;
 
         node2.mode = test_finger & index2 = -1 : find_successor ;
-
-        -- Temp
         node2.mode = test_finger & (index2 >= 2 | index2 <= -1) : out_of_bounds ;
 
         node2.mode = test_finger &
@@ -146,8 +142,6 @@ MODULE main
         node3.mode = get_next_finger & index3 < 0 : find_successor ;
 
         node3.mode = test_finger & index3 = -1 : find_successor ;
-
-        -- Temp
         node3.mode = test_finger & (index3 >= 2 | index3 <= -1): out_of_bounds ;
 
         node3.mode = test_finger &
