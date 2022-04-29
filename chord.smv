@@ -180,11 +180,12 @@ LTLSPEC
   G (node3.mode = next_node -> X (node1.mode = find_successor | node2.mode = find_successor)) ;
 
 -- Always exactly one node not in mode waiting
-LTLSPEC
-  G (node1.mode != waiting xor
-     node2.mode != waiting xor
-     node3.mode != waiting) ;
+INVARSPEC
+  node1.mode != waiting xor
+  node2.mode != waiting xor
+  node3.mode != waiting ;
 
+-- Never reach out_of_bounds mode
 INVARSPEC
   (node1.mode != out_of_bounds);
 
@@ -194,6 +195,7 @@ INVARSPEC
 INVARSPEC
   (node3.mode != out_of_bounds);
 
+-- Index is max whenever mode is closest preceding
 INVARSPEC
   node1.mode = closest_preceding -> index1 = 2
 
@@ -228,6 +230,7 @@ MODULE node(id_i, successor_id_i, fingers_i)
     init(id) := id_i;
     init(successor_id) := successor_id_i;
 
+-- Verify correct sequence of modes
 LTLSPEC
   G ((mode = find_successor) -> X (mode = found_successor | mode = closest_preceding));
 
