@@ -76,8 +76,7 @@ MODULE main
         node1.mode = test_finger & index1 = -1 : find_successor ;
 
         -- Temp
-        node1.mode = test_finger & index1 >= 2 : gte2 ;
-        node1.mode = test_finger & index1 <= -1 : lten1 ;
+        node1.mode = test_finger & (index1 >= 2 | index1 <= -1) : out_of_bounds ;
 
         node1.mode = test_finger &
           (node1.id >= n | (node1.id < fingers1[index1] & fingers1[index1] < n)) &
@@ -113,8 +112,7 @@ MODULE main
         node2.mode = test_finger & index2 = -1 : find_successor ;
 
         -- Temp
-        node2.mode = test_finger & index2 >= 2 : gte2 ;
-        node2.mode = test_finger & index2 <= -1 : lten1 ;
+        node2.mode = test_finger & (index2 >= 2 | index2 <= -1) : out_of_bounds ;
 
         node2.mode = test_finger &
           (node2.id >= n | (node2.id < fingers2[index2] & fingers2[index2] < n)) &
@@ -150,8 +148,7 @@ MODULE main
         node3.mode = test_finger & index3 = -1 : find_successor ;
 
         -- Temp
-        node3.mode = test_finger & index3 >= 2 : gte2 ;
-        node3.mode = test_finger & index3 <= -1 : lten1 ;
+        node3.mode = test_finger & (index3 >= 2 | index3 <= -1): out_of_bounds ;
 
         node3.mode = test_finger &
           (node3.id >= n | (node3.id < fingers3[index3] & fingers3[index3] < n)) &
@@ -177,22 +174,13 @@ LTLSPEC
   node3.mode = find_successor;
 
 INVARSPEC
-  (node1.mode != gte2);
+  (node1.mode != out_of_bounds);
 
 INVARSPEC
-  (node2.mode != gte2);
+  (node2.mode != out_of_bounds);
 
 INVARSPEC
-  (node3.mode != gte2);
-
-INVARSPEC
-  (node1.mode != lten1);
-
-INVARSPEC
-  (node2.mode != lten1);
-
-INVARSPEC
-  (node3.mode != lten1);
+  (node3.mode != out_of_bounds);
 
 MODULE node(id_i, successor_id_i, fingers_i)
 
@@ -209,8 +197,7 @@ MODULE node(id_i, successor_id_i, fingers_i)
       get_next_finger,
       test_finger,
       next_node,
-      gte2,
-      lten1
+      out_of_bounds
     };
 
   DEFINE
