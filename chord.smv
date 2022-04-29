@@ -203,3 +203,6 @@ MODULE node(id_i, successor_id_i, fingers_i)
 
 LTLSPEC
   G ((mode = find_successor) -> X (mode = found_successor | mode = closest_preceding));
+
+LTLSPEC
+  G ((mode = waiting) -> X (mode = find_successor | mode = waiting));
