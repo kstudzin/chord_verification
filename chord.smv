@@ -209,3 +209,6 @@ LTLSPEC
 
 LTLSPEC
   G ((mode = closest_preceding) -> X (mode = get_next_finger));
+
+LTLSPEC
+  G ((mode = get_next_finger) -> X (mode = test_finger | mode = find_successor));
