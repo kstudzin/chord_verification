@@ -208,4 +208,4 @@ MODULE node(id_i, successor_id_i, fingers_i)
     init(successor_id) := successor_id_i;
 
 LTLSPEC
-  (F mode = find_successor) -> X (mode = found_successor | mode = closest_preceding);
+  G ((mode = find_successor) -> X (mode = found_successor | mode = closest_preceding));
