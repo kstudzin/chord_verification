@@ -15,7 +15,6 @@ MODULE main
     index3 : 0..1;
 
   ASSIGN
-    init(n) := 15;
     init(node1.mode) := find_successor;
     init(node2.mode) := waiting;
     init(node3.mode) := waiting;
@@ -37,8 +36,8 @@ MODULE main
       case
         index1 = 0 : 1;
         node1.mode = closest_preceding &
-          (fingers1[index1] < node1.id & fingers1[index1] < n & n < node1.id) |
-          (n > fingers1[index1] | n < node1.id) : index1 - 1 ;
+          (fingers1[index1] >= node1.id | (fingers1[index1] < n & n < node1.id)) &
+          (fingers1[index1] <  node1.id | (n > fingers1[index1] | n < node1.id)) : index1 - 1 ;
         TRUE : index1 ;
       esac;
 
@@ -46,8 +45,8 @@ MODULE main
       case
         index2 = 0 : 1;
         node2.mode = closest_preceding &
-          (fingers2[index2] < node2.id & fingers2[index2] < n & n < node2.id) |
-          (n > fingers2[index2] | n < node2.id) : index2 - 1;
+          (fingers2[index2] >= node2.id | (fingers2[index2] < n & n < node2.id)) &
+          (fingers2[index2] <  node2.id | (n > fingers2[index2] | n < node2.id)) : index2 - 1;
         TRUE : index2 ;
       esac;
 
@@ -55,19 +54,20 @@ MODULE main
       case
         index3 = 0 : 1;
         node3.mode = closest_preceding &
-          (fingers3[index3] < node3.id & fingers3[index3] < n & n < node3.id) |
-          (n > fingers3[index3] | n < node3.id) : index3 - 1;
+          (fingers3[index3] >= node3.id | (fingers3[index3] < n & n < node3.id)) &
+          (fingers3[index3] <  node3.id | (n > fingers3[index3] | n < node3.id)) : index3 - 1;
         TRUE : index3 ;
       esac;
 
     next(node1.mode) :=
       case
-        (node1.mode = find_successor & (
-          (node1.id < node1.successor_id & node1.id < n & n <= node1.successor_id ) |
-          (n > node1.id | n <= node1.successor_id ))) : found_successor;
+        (node1.mode = find_successor &
+          (node1.id >= node1.successor_id | (node1.id < n & n <= node1.successor_id)) &
+          (node1.id <  node1.successor_id | (n > node1.id | n <= node1.successor_id))) : found_successor;
+
         (node1.mode = find_successor & !(
-          (node1.id < node1.successor_id & node1.id < n & n <= node1.successor_id ) |
-          (n > node1.id | n <= node1.successor_id ))) : closest_preceding;
+          (node1.id >= node1.successor_id | (node1.id < n & n <= node1.successor_id)) &
+          (node1.id <  node1.successor_id | (n > node1.id | n <= node1.successor_id)))) : closest_preceding;
 
         node1.mode = waiting & node2.mode = closest_preceding & index2 = 1 : find_successor ;
         node1.mode = waiting & node3.mode = closest_preceding & index3 = 0 : find_successor ;
@@ -80,12 +80,13 @@ MODULE main
 
     next(node2.mode) :=
       case
-        (node2.mode = find_successor & (
-          (node2.id < node2.successor_id & node2.id < n & n <= node2.successor_id ) |
-          (n > node2.id | n <= node2.successor_id ))) : found_successor;
+        (node2.mode = find_successor &
+          (node2.id >= node2.successor_id | (node2.id < n & n <= node2.successor_id)) &
+          (node2.id <  node2.successor_id | (n > node2.id | n <= node2.successor_id))) : found_successor;
+
         (node2.mode = find_successor & !(
-          (node2.id < node2.successor_id & node2.id < n & n <= node2.successor_id ) |
-          (n > node2.id | n <= node2.successor_id ))) : closest_preceding;
+          (node2.id >= node2.successor_id | (node2.id < n & n <= node2.successor_id)) &
+          (node2.id <  node2.successor_id | (n > node2.id | n <= node2.successor_id)))) : closest_preceding;
 
         node2.mode = waiting & node1.mode = closest_preceding & index1 = 0 : find_successor;
         node2.mode = waiting & node3.mode = closest_preceding & index3 = 1 : find_successor;
@@ -95,12 +96,13 @@ MODULE main
 
     next(node3.mode) :=
       case
-        (node3.mode = find_successor & (
-          (node3.id < node3.successor_id & node3.id < n & n <= node3.successor_id ) |
-          (n > node3.id | n <= node3.successor_id ))) : found_successor;
+        (node3.mode = find_successor &
+          (node3.id >= node3.successor_id | (node3.id < n & n <= node3.successor_id)) &
+          (node3.id <  node3.successor_id | (n > node3.id | n <= node3.successor_id))) : found_successor;
+
         (node3.mode = find_successor & !(
-          (node3.id < node3.successor_id & node3.id < n & n <= node3.successor_id ) |
-          (n > node3.id | n <= node3.successor_id ))) : closest_preceding;
+          (node3.id >= node3.successor_id | (node3.id < n & n <= node3.successor_id)) &
+          (node3.id <  node3.successor_id | (n > node3.id | n <= node3.successor_id)))) : closest_preceding;
 
         node3.mode = waiting & node1.mode = closest_preceding & index1 = 1 : find_successor ;
         node3.mode = waiting & node2.mode = closest_preceding & index2 = 0 : find_successor ;
@@ -108,17 +110,10 @@ MODULE main
         TRUE : node3.mode ;
       esac;
 
-INVARSPEC
-  !(index1 < 0)
-
-INVARSPEC
-  !(index2 < 0)
-
-INVARSPEC
-  !(index3 < 0)
-
 LTLSPEC
-  ((G (n > 10 | n <= 20)) & (F node1.mode = found_successor));
+  ((G (n > 10 & n <= 20)) & (F node1.mode = found_successor)) xor
+  ((G (n > 20 & n <= 30)) & (F node2.mode = found_successor)) xor
+  ((G (n > 30 | n <= 10)) & (F node3.mode = found_successor));
 
 MODULE node(id_i, successor_id_i, fingers_i)
 
