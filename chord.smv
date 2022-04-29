@@ -14,11 +14,12 @@ MODULE main
     index2 : 0..1;
     index3 : 0..1;
 
-  ASSIGN
-    init(node1.mode) := find_successor;
-    init(node2.mode) := waiting;
-    init(node3.mode) := waiting;
+  INIT
+    (node1.mode = find_successor & node2.mode = waiting & node3.mode = waiting) |
+    (node1.mode = waiting & node2.mode = find_successor & node3.mode = waiting) |
+    (node1.mode = waiting & node2.mode = waiting & node3.mode = find_successor) ;
 
+  ASSIGN
     init(fingers1[0]) := 20;
     init(fingers1[1]) := 30;
 
@@ -91,6 +92,9 @@ MODULE main
         node2.mode = waiting & node1.mode = closest_preceding & index1 = 0 : find_successor;
         node2.mode = waiting & node3.mode = closest_preceding & index3 = 1 : find_successor;
 
+        node2.mode = closest_preceding &
+          (node1.mode = find_successor | node3.mode = find_successor) : waiting ;
+
         TRUE : node2.mode ;
       esac;
 
@@ -107,6 +111,9 @@ MODULE main
         node3.mode = waiting & node1.mode = closest_preceding & index1 = 1 : find_successor ;
         node3.mode = waiting & node2.mode = closest_preceding & index2 = 0 : find_successor ;
 
+        node3.mode = closest_preceding &
+          (node1.mode = find_successor | node2.mode = find_successor) : waiting ;
+
         TRUE : node3.mode ;
       esac;
 
@@ -114,6 +121,11 @@ LTLSPEC
   ((G (n > 10 & n <= 20)) & (F node1.mode = found_successor)) xor
   ((G (n > 20 & n <= 30)) & (F node2.mode = found_successor)) xor
   ((G (n > 30 | n <= 10)) & (F node3.mode = found_successor));
+
+LTLSPEC
+  node1.mode = find_successor xor
+  node2.mode = find_successor xor
+  node3.mode = find_successor;
 
 MODULE node(id_i, successor_id_i, fingers_i)
 
