@@ -45,8 +45,6 @@ MODULE main
         node1.mode = get_next_finger & node1.index >= 0 : test_finger ;
         node1.mode = get_next_finger & node1.index < 0 : find_successor ;
 
-        node1.mode = test_finger & (node1.index >= 2 | node1.index <= -1) : out_of_bounds ;
-
         node1.mode = test_finger &
           !(node1.index >= 2 | node1.index <= -1) &
           (node1.id >= n | (node1.id < fingers1[node1.index] & fingers1[node1.index] < n)) &
@@ -80,8 +78,6 @@ MODULE main
         node2.mode = get_next_finger & node2.index >= 0 : test_finger ;
         node2.mode = get_next_finger & node2.index < 0 : find_successor ;
 
-        node2.mode = test_finger & (node2.index >= 2 | node2.index <= -1) : out_of_bounds ;
-
         node2.mode = test_finger &
           !(node2.index >= 2 | node2.index <= -1) &
           (node2.id >= n | (node2.id < fingers2[node2.index] & fingers2[node2.index] < n)) &
@@ -114,8 +110,6 @@ MODULE main
 
         node3.mode = get_next_finger & node3.index >= 0 : test_finger ;
         node3.mode = get_next_finger & node3.index < 0 : find_successor ;
-
-        node3.mode = test_finger & (node3.index >= 2 | node3.index <= -1): out_of_bounds ;
 
         node3.mode = test_finger &
           !(node3.index >= 2 | node3.index <= -1) &
@@ -182,8 +176,7 @@ MODULE node(id_i, successor_id_i, fingers_i)
       closest_preceding,
       get_next_finger,
       test_finger,
-      next_node,
-      out_of_bounds
+      next_node
     };
 
   DEFINE
@@ -200,9 +193,6 @@ MODULE node(id_i, successor_id_i, fingers_i)
         mode = get_next_finger : index - 1;
         TRUE : index ;
       esac;
-
-INVARSPEC
-  mode != out_of_bounds
 
 -- Index is max whenever mode is closest preceding
 INVARSPEC
