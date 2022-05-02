@@ -10,9 +10,6 @@ MODULE main
     node1 : node(10, 20, fingers1);
     node2 : node(20, 30, fingers2);
     node3 : node(30, 10, fingers3);
-    index1 : -1..2;
-    index2 : -1..2;
-    index3 : -1..2;
 
   INIT
     (node1.mode = find_successor & node2.mode = waiting & node3.mode = waiting) |
@@ -29,31 +26,6 @@ MODULE main
     init(fingers3[0]) := 10;
     init(fingers3[1]) := 20;
 
-    init(index1) := 2;
-    init(index2) := 2;
-    init(index3) := 2;
-
-    next(index1) :=
-      case
-        index1 = -1 : 2;
-        node1.mode = get_next_finger : index1 - 1 ;
-        TRUE : index1 ;
-      esac;
-
-    next(index2) :=
-      case
-        index2 = -1 : 2;
-        node2.mode = get_next_finger : index2 - 1;
-        TRUE : index2 ;
-      esac;
-
-    next(index3) :=
-      case
-        index3 = -1 : 2;
-        node3.mode = get_next_finger : index3 - 1;
-        TRUE : index3 ;
-      esac;
-
     next(node1.mode) :=
       case
 
@@ -65,23 +37,25 @@ MODULE main
           (node1.id >= node1.successor_id | (node1.id < n & n <= node1.successor_id)) &
           (node1.id <  node1.successor_id | (n > node1.id | n <= node1.successor_id)))) : closest_preceding;
 
-        node1.mode = waiting & node2.mode = next_node & index2 = 1 : find_successor ;
-        node1.mode = waiting & node3.mode = next_node & index3 = 0 : find_successor ;
+        node1.mode = waiting & node2.mode = next_node & node2.index = 1 : find_successor ;
+        node1.mode = waiting & node3.mode = next_node & node3.index = 0 : find_successor ;
 
         node1.mode = closest_preceding : get_next_finger ;
 
-        node1.mode = get_next_finger & index1 >= 0 : test_finger ;
-        node1.mode = get_next_finger & index1 < 0 : find_successor ;
+        node1.mode = get_next_finger & node1.index >= 0 : test_finger ;
+        node1.mode = get_next_finger & node1.index < 0 : find_successor ;
 
-        node1.mode = test_finger & (index1 >= 2 | index1 <= -1) : out_of_bounds ;
+        node1.mode = test_finger & (node1.index >= 2 | node1.index <= -1) : out_of_bounds ;
 
         node1.mode = test_finger &
-          (node1.id >= n | (node1.id < fingers1[index1] & fingers1[index1] < n)) &
-          (node1.id <  n | (fingers1[index1] > node1.id | fingers1[index1] < n)) : next_node ;
+          !(node1.index >= 2 | node1.index <= -1) &
+          (node1.id >= n | (node1.id < fingers1[node1.index] & fingers1[node1.index] < n)) &
+          (node1.id <  n | (fingers1[node1.index] > node1.id | fingers1[node1.index] < n)) : next_node ;
 
-        node1.mode = test_finger & !(
-          (node1.id >= n | (node1.id < fingers1[index1] & fingers1[index1] < n)) &
-          (node1.id <  n | (fingers1[index1] > node1.id | fingers1[index1] < n))) : get_next_finger ;
+        node1.mode = test_finger &
+          !(node1.index >= 2 | node1.index <= -1) &
+          !((node1.id >= n | (node1.id < fingers1[node1.index] & fingers1[node1.index] < n)) &
+          (node1.id <  n | (fingers1[node1.index] > node1.id | fingers1[node1.index] < n))) : get_next_finger ;
 
         node1.mode = next_node : waiting ;
 
@@ -98,23 +72,25 @@ MODULE main
           (node2.id >= node2.successor_id | (node2.id < n & n <= node2.successor_id)) &
           (node2.id <  node2.successor_id | (n > node2.id | n <= node2.successor_id)))) : closest_preceding;
 
-        node2.mode = waiting & node1.mode = next_node & index1 = 0 : find_successor;
-        node2.mode = waiting & node3.mode = next_node & index3 = 1 : find_successor;
+        node2.mode = waiting & node1.mode = next_node & node1.index = 0 : find_successor;
+        node2.mode = waiting & node3.mode = next_node & node3.index = 1 : find_successor;
 
         node2.mode = closest_preceding : get_next_finger ;
 
-        node2.mode = get_next_finger & index2 >= 0 : test_finger ;
-        node2.mode = get_next_finger & index2 < 0 : find_successor ;
+        node2.mode = get_next_finger & node2.index >= 0 : test_finger ;
+        node2.mode = get_next_finger & node2.index < 0 : find_successor ;
 
-        node2.mode = test_finger & (index2 >= 2 | index2 <= -1) : out_of_bounds ;
+        node2.mode = test_finger & (node2.index >= 2 | node2.index <= -1) : out_of_bounds ;
 
         node2.mode = test_finger &
-          (node2.id >= n | (node2.id < fingers2[index2] & fingers2[index2] < n)) &
-          (node2.id <  n | (fingers2[index2] > node2.id | fingers2[index2] < n)) : next_node ;
+          !(node2.index >= 2 | node2.index <= -1) &
+          (node2.id >= n | (node2.id < fingers2[node2.index] & fingers2[node2.index] < n)) &
+          (node2.id <  n | (fingers2[node2.index] > node2.id | fingers2[node2.index] < n)) : next_node ;
 
-        node2.mode = test_finger & !(
-          (node2.id >= n | (node2.id < fingers2[index2] & fingers2[index2] < n)) &
-          (node2.id <  n | (fingers2[index2] > node2.id | fingers2[index2] < n))) : get_next_finger ;
+        node2.mode = test_finger &
+          !(node2.index >= 2 | node2.index <= -1) &
+          !((node2.id >= n | (node2.id < fingers2[node2.index] & fingers2[node2.index] < n)) &
+          (node2.id <  n | (fingers2[node2.index] > node2.id | fingers2[node2.index] < n))) : get_next_finger ;
 
         node2.mode = next_node : waiting ;
 
@@ -131,23 +107,25 @@ MODULE main
           (node3.id >= node3.successor_id | (node3.id < n & n <= node3.successor_id)) &
           (node3.id <  node3.successor_id | (n > node3.id | n <= node3.successor_id)))) : closest_preceding;
 
-        node3.mode = waiting & node1.mode = next_node & index1 = 1 : find_successor ;
-        node3.mode = waiting & node2.mode = next_node & index2 = 0 : find_successor ;
+        node3.mode = waiting & node1.mode = next_node & node1.index = 1 : find_successor ;
+        node3.mode = waiting & node2.mode = next_node & node2.index = 0 : find_successor ;
 
         node3.mode = closest_preceding : get_next_finger ;
 
-        node3.mode = get_next_finger & index3 >= 0 : test_finger ;
-        node3.mode = get_next_finger & index3 < 0 : find_successor ;
+        node3.mode = get_next_finger & node3.index >= 0 : test_finger ;
+        node3.mode = get_next_finger & node3.index < 0 : find_successor ;
 
-        node3.mode = test_finger & (index3 >= 2 | index3 <= -1): out_of_bounds ;
+        node3.mode = test_finger & (node3.index >= 2 | node3.index <= -1): out_of_bounds ;
 
         node3.mode = test_finger &
-          (node3.id >= n | (node3.id < fingers3[index3] & fingers3[index3] < n)) &
-          (node3.id <  n | (fingers3[index3] > node3.id | fingers3[index3] < n)) : next_node ;
+          !(node3.index >= 2 | node3.index <= -1) &
+          (node3.id >= n | (node3.id < fingers3[node3.index] & fingers3[node3.index] < n)) &
+          (node3.id <  n | (fingers3[node3.index] > node3.id | fingers3[node3.index] < n)) : next_node ;
 
-        node3.mode = test_finger & !(
-          (node3.id >= n | (node3.id < fingers3[index3] & fingers3[index3] < n)) &
-          (node3.id <  n | (fingers3[index3] > node3.id | fingers3[index3] < n))) : get_next_finger ;
+        node3.mode = test_finger &
+          !(node3.index >= 2 | node3.index <= -1) &
+          !((node3.id >= n | (node3.id < fingers3[node3.index] & fingers3[node3.index] < n)) &
+            (node3.id <  n | (fingers3[node3.index] > node3.id | fingers3[node3.index] < n))) : get_next_finger ;
 
         node3.mode = next_node : waiting ;
 
@@ -182,38 +160,7 @@ INVARSPEC
   node2.mode != waiting xor
   node3.mode != waiting ;
 
--- Never reach out_of_bounds mode
-INVARSPEC
-  (node1.mode != out_of_bounds);
-
-INVARSPEC
-  (node2.mode != out_of_bounds);
-
-INVARSPEC
-  (node3.mode != out_of_bounds);
-
--- Index is max whenever mode is closest preceding
-INVARSPEC
-  node1.mode = closest_preceding -> index1 = 2
-
-INVARSPEC
-  node2.mode = closest_preceding -> index2 = 2
-
-INVARSPEC
-  node3.mode = closest_preceding -> index3 = 2
-
--- There is a cycle of find_successor -> closest_preceding -> get_next_finger. This check ensure that we never
--- get stuck in that cycle because any time the get_next_finger -> find_successor transition is executed,
--- the following state is a terminal state.
---
--- We also know that we don't get stuck in this cycle because we have another check that there is a persistent
--- state with one node in found_successor mode.
-LTLSPEC
-  ((node1.mode = get_next_finger & X (node1.mode = find_successor)) -> X (X (node1.mode = found_successor))) &
-  ((node2.mode = get_next_finger & X (node2.mode = find_successor)) -> X (X (node2.mode = found_successor))) &
-  ((node3.mode = get_next_finger & X (node1.mode = find_successor)) -> X (X (node3.mode = found_successor)))
-
--- Continuing the comment above. Further we know that any time we excute the get_next_finger -> find_successor
+-- Any time we excute the get_next_finger -> find_successor
 -- transition, it is because we have an id that is equal to our node.
 LTLSPEC
   ((node1.mode = get_next_finger & X (node1.mode = find_successor)) -> node1.id = n) &
@@ -227,6 +174,7 @@ MODULE node(id_i, successor_id_i, fingers_i)
     successor_id : 0..255;
 
   VAR
+    index : -1..2;
     mode : {
       waiting,
       find_successor,
@@ -244,9 +192,30 @@ MODULE node(id_i, successor_id_i, fingers_i)
   ASSIGN
     init(id) := id_i;
     init(successor_id) := successor_id_i;
+    init(index) := 2;
+
+    next(index) :=
+      case
+        index = -1 : 2;
+        mode = get_next_finger : index - 1;
+        TRUE : index ;
+      esac;
 
 INVARSPEC
   mode != out_of_bounds
+
+-- Index is max whenever mode is closest preceding
+INVARSPEC
+  mode = closest_preceding -> index = 2
+
+-- There is a cycle of find_successor -> closest_preceding -> get_next_finger. This check ensure that we never
+-- get stuck in that cycle because any time the get_next_finger -> find_successor transition is executed,
+-- the following state is a terminal state.
+--
+-- We also know that we don't get stuck in this cycle because we have another check that there is a persistent
+-- state with one node in found_successor mode.
+LTLSPEC
+  ((mode = get_next_finger & X (mode = find_successor)) -> X (X (mode = found_successor)))
 
 -- Verify correct sequence of modes
 LTLSPEC
