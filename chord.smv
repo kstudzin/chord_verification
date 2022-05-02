@@ -209,19 +209,9 @@ LTLSPEC
 
 -- Verify correct sequence of modes
 LTLSPEC
-  G ((mode = find_successor) -> X (mode = found_successor | mode = closest_preceding));
-
-LTLSPEC
-  G ((mode = waiting) -> X (mode = find_successor | mode = waiting));
-
-LTLSPEC
-  G ((mode = closest_preceding) -> X (mode = get_next_finger));
-
-LTLSPEC
-  G ((mode = get_next_finger) -> X (mode = test_finger | mode = find_successor));
-
-LTLSPEC
-  G ((mode = test_finger) -> X (mode = get_next_finger | mode = next_node));
-
-LTLSPEC
+  G ((mode = find_successor) -> X (mode = found_successor | mode = closest_preceding)) &
+  G ((mode = waiting) -> X (mode = find_successor | mode = waiting)) &
+  G ((mode = closest_preceding) -> X (mode = get_next_finger)) &
+  G ((mode = get_next_finger) -> X (mode = test_finger | mode = find_successor)) &
+  G ((mode = test_finger) -> X (mode = get_next_finger | mode = next_node)) &
   G ((mode = next_node) -> X (mode = waiting));
