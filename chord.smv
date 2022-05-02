@@ -73,7 +73,6 @@ MODULE main
         node1.mode = get_next_finger & index1 >= 0 : test_finger ;
         node1.mode = get_next_finger & index1 < 0 : find_successor ;
 
-        node1.mode = test_finger & index1 = -1 : find_successor ;
         node1.mode = test_finger & (index1 >= 2 | index1 <= -1) : out_of_bounds ;
 
         node1.mode = test_finger &
@@ -107,7 +106,6 @@ MODULE main
         node2.mode = get_next_finger & index2 >= 0 : test_finger ;
         node2.mode = get_next_finger & index2 < 0 : find_successor ;
 
-        node2.mode = test_finger & index2 = -1 : find_successor ;
         node2.mode = test_finger & (index2 >= 2 | index2 <= -1) : out_of_bounds ;
 
         node2.mode = test_finger &
@@ -141,7 +139,6 @@ MODULE main
         node3.mode = get_next_finger & index3 >= 0 : test_finger ;
         node3.mode = get_next_finger & index3 < 0 : find_successor ;
 
-        node3.mode = test_finger & index3 = -1 : find_successor ;
         node3.mode = test_finger & (index3 >= 2 | index3 <= -1): out_of_bounds ;
 
         node3.mode = test_finger &
@@ -205,6 +202,24 @@ INVARSPEC
 INVARSPEC
   node3.mode = closest_preceding -> index3 = 2
 
+-- There is a cycle of find_successor -> closest_preceding -> get_next_finger. This check ensure that we never
+-- get stuck in that cycle because any time the get_next_finger -> find_successor transition is executed,
+-- the following state is a terminal state.
+--
+-- We also know that we don't get stuck in this cycle because we have another check that there is a persistent
+-- state with one node in found_successor mode.
+LTLSPEC
+  ((node1.mode = get_next_finger & X (node1.mode = find_successor)) -> X (X (node1.mode = found_successor))) &
+  ((node2.mode = get_next_finger & X (node2.mode = find_successor)) -> X (X (node2.mode = found_successor))) &
+  ((node3.mode = get_next_finger & X (node1.mode = find_successor)) -> X (X (node3.mode = found_successor)))
+
+-- Continuing the comment above. Further we know that any time we excute the get_next_finger -> find_successor
+-- transition, it is because we have an id that is equal to our node.
+LTLSPEC
+  ((node1.mode = get_next_finger & X (node1.mode = find_successor)) -> node1.id = n) &
+  ((node2.mode = get_next_finger & X (node2.mode = find_successor)) -> node2.id = n) &
+  ((node3.mode = get_next_finger & X (node1.mode = find_successor)) -> node3.id = n)
+
 MODULE node(id_i, successor_id_i, fingers_i)
 
   FROZENVAR
@@ -230,6 +245,9 @@ MODULE node(id_i, successor_id_i, fingers_i)
     init(id) := id_i;
     init(successor_id) := successor_id_i;
 
+INVARSPEC
+  mode != out_of_bounds
+
 -- Verify correct sequence of modes
 LTLSPEC
   G ((mode = find_successor) -> X (mode = found_successor | mode = closest_preceding));
@@ -244,7 +262,7 @@ LTLSPEC
   G ((mode = get_next_finger) -> X (mode = test_finger | mode = find_successor));
 
 LTLSPEC
-  G ((mode = test_finger) -> X (mode = get_next_finger | mode = find_successor | mode = next_node));
+  G ((mode = test_finger) -> X (mode = get_next_finger | mode = next_node));
 
 LTLSPEC
   G ((mode = next_node) -> X (mode = waiting));
