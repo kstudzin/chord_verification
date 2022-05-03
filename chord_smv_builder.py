@@ -32,13 +32,13 @@ next_node_p2 = """
             node{idx}.mode = get_next_finger & node{idx}.index < 0 : find_successor ;
 
             node{idx}.mode = test_finger &
-              !(node{idx}.index >= 2 | node{idx}.index <= -1) &
+              !(node{idx}.index >= {num_bits} | node{idx}.index <= -1) &
               (node{idx}.id >= n | (node{idx}.id < fingers{idx}[node{idx}.index] & fingers{idx}[node{idx}.index] < n)) &
               (node{idx}.id <  n | (fingers{idx}[node{idx}.index] > node{idx}.id | fingers{idx}[node{idx}.index] < n)) : 
                 next_node ;
 
             node{idx}.mode = test_finger &
-              !(node{idx}.index >= 2 | node{idx}.index <= -1) &
+              !(node{idx}.index >= {num_bits} | node{idx}.index <= -1) &
               !((node{idx}.id >= n | (node{idx}.id < fingers{idx}[node{idx}.index] & fingers{idx}[node{idx}.index] < n)) &
               (node{idx}.id <  n | (fingers{idx}[node{idx}.index] > node{idx}.id | fingers{idx}[node{idx}.index] < n))) : 
                 get_next_finger ;
@@ -108,10 +108,10 @@ for i in range(0, NUM_NODES):
 
 
 for k, node_id in enumerate(node_ids):
-    smv = smv + next_node_p1.format(idx=k)
+    smv = smv + next_node_p1.format(idx=k, num_bits=NUM_BITS)
     for i, j in reverse_fingers[node_id]:
         smv = smv + f"            node{k}.mode = waiting & node{i}.mode = next_node & node{i}.index = {j} : find_successor ;\n"
-    smv = smv + next_node_p2.format(idx=k)
+    smv = smv + next_node_p2.format(idx=k, num_bits=NUM_BITS)
 
 smv = smv + "LTLSPEC\n"
 for i, node_id in enumerate(node_ids):
