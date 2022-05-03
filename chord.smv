@@ -157,9 +157,9 @@ INVARSPEC
 -- Any time we excute the get_next_finger -> find_successor
 -- transition, it is because we have an id that is equal to our node.
 LTLSPEC
-  ((node1.mode = get_next_finger & X (node1.mode = find_successor)) -> node1.id = n) &
-  ((node2.mode = get_next_finger & X (node2.mode = find_successor)) -> node2.id = n) &
-  ((node3.mode = get_next_finger & X (node1.mode = find_successor)) -> node3.id = n)
+  G ((node1.mode = get_next_finger & X (node1.mode = find_successor)) -> node1.id = n) &
+  G ((node2.mode = get_next_finger & X (node2.mode = find_successor)) -> node2.id = n) &
+  G ((node3.mode = get_next_finger & X (node1.mode = find_successor)) -> node3.id = n)
 
 MODULE node(id_i, successor_id_i, fingers_i)
 
@@ -205,7 +205,7 @@ INVARSPEC
 -- We also know that we don't get stuck in this cycle because we have another check that there is a persistent
 -- state with one node in found_successor mode.
 LTLSPEC
-  ((mode = get_next_finger & X (mode = find_successor)) -> X (X (mode = found_successor)))
+  G ((mode = get_next_finger & X (mode = find_successor)) -> X (X (mode = found_successor)))
 
 -- Verify correct sequence of modes
 LTLSPEC
