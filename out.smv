@@ -54,13 +54,13 @@ MODULE main
             node0.mode = get_next_finger & node0.index < 0 : find_successor ;
 
             node0.mode = test_finger &
-              !(node0.index >= 2 | node0.index <= -1) &
+              !(node0.index >= 4 | node0.index <= -1) &
               (node0.id >= n | (node0.id < fingers0[node0.index] & fingers0[node0.index] < n)) &
               (node0.id <  n | (fingers0[node0.index] > node0.id | fingers0[node0.index] < n)) : 
                 next_node ;
 
             node0.mode = test_finger &
-              !(node0.index >= 2 | node0.index <= -1) &
+              !(node0.index >= 4 | node0.index <= -1) &
               !((node0.id >= n | (node0.id < fingers0[node0.index] & fingers0[node0.index] < n)) &
               (node0.id <  n | (fingers0[node0.index] > node0.id | fingers0[node0.index] < n))) : 
                 get_next_finger ;
@@ -95,13 +95,13 @@ MODULE main
             node1.mode = get_next_finger & node1.index < 0 : find_successor ;
 
             node1.mode = test_finger &
-              !(node1.index >= 2 | node1.index <= -1) &
+              !(node1.index >= 4 | node1.index <= -1) &
               (node1.id >= n | (node1.id < fingers1[node1.index] & fingers1[node1.index] < n)) &
               (node1.id <  n | (fingers1[node1.index] > node1.id | fingers1[node1.index] < n)) : 
                 next_node ;
 
             node1.mode = test_finger &
-              !(node1.index >= 2 | node1.index <= -1) &
+              !(node1.index >= 4 | node1.index <= -1) &
               !((node1.id >= n | (node1.id < fingers1[node1.index] & fingers1[node1.index] < n)) &
               (node1.id <  n | (fingers1[node1.index] > node1.id | fingers1[node1.index] < n))) : 
                 get_next_finger ;
@@ -134,13 +134,13 @@ MODULE main
             node2.mode = get_next_finger & node2.index < 0 : find_successor ;
 
             node2.mode = test_finger &
-              !(node2.index >= 2 | node2.index <= -1) &
+              !(node2.index >= 4 | node2.index <= -1) &
               (node2.id >= n | (node2.id < fingers2[node2.index] & fingers2[node2.index] < n)) &
               (node2.id <  n | (fingers2[node2.index] > node2.id | fingers2[node2.index] < n)) : 
                 next_node ;
 
             node2.mode = test_finger &
-              !(node2.index >= 2 | node2.index <= -1) &
+              !(node2.index >= 4 | node2.index <= -1) &
               !((node2.id >= n | (node2.id < fingers2[node2.index] & fingers2[node2.index] < n)) &
               (node2.id <  n | (fingers2[node2.index] > node2.id | fingers2[node2.index] < n))) : 
                 get_next_finger ;
