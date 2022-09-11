@@ -29,4 +29,4 @@ $ python3 model_gen.py > generated.smv
 
 # Report
 
-`CS 6315 Automated Verification Final Project.pdf`
+[`CS 6315 Automated Verification Final Project.pdf`](https://github.com/kstudzin/CS6315/files/9543657/CS.6315.Automated.Verification.Final.Project.pdf)
