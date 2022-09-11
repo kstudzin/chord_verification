@@ -1,7 +1,7 @@
 import random
 from collections import defaultdict
 
-NUM_BITS = 4
+NUM_BITS = 5
 NUM_NODES = 3
 MAX_ID = pow(2, NUM_BITS) - 1
 
@@ -93,8 +93,10 @@ reverse_fingers = defaultdict(list)
 for i in range(0, NUM_NODES):
     for j in range(0, NUM_BITS):
         finger = (node_ids[i] + pow(2, j)) % MAX_ID
+        # print(f"{i} {node_ids[i] + pow(2, j)}")
+        # print(node_ids[i + 1:] + node_ids[:i + 1])
         for k, node_id in enumerate(node_ids[i + 1:] + node_ids[:i + 1]):
-            if finger < node_id:
+            if finger <= node_id:
                 smv = smv + f"        init(fingers{i}[{j}]) := {node_id};\n"
                 fingers[i].add((k + i + 1) % NUM_NODES)
                 reverse_fingers[node_id].append((i, j))
@@ -102,7 +104,7 @@ for i in range(0, NUM_NODES):
             if finger > node_ids[-1]:
                 node_id = node_ids[0]
                 smv = smv + f"        init(fingers{i}[{j}]) := {node_id};\n"
-                fingers[i].add((k + i + 1) % NUM_NODES)
+                fingers[i].add(0)
                 reverse_fingers[node_id].append((i, j))
                 break
 
@@ -116,7 +118,12 @@ for k, node_id in enumerate(node_ids):
 smv = smv + "LTLSPEC\n"
 for i, node_id in enumerate(node_ids):
     next_i = (i + 1) % len(node_ids)
-    smv = smv + f"    ((n > {node_id} & n <= {node_ids[next_i]}) -> (F node{i}.mode = found_successor))"
+    smv = smv + f"    ((n > {node_id}"
+    if i != NUM_NODES - 1:
+        smv = smv + " & "
+    else:
+        smv = smv + " | "
+    smv = smv + f"n <= {node_ids[next_i]}) -> (F node{i}.mode = found_successor))"
     if i != NUM_NODES - 1:
         smv = smv + " &\n"
 

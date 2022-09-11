@@ -128,9 +128,9 @@ MODULE main
 
 -- Correct successor always found
 LTLSPEC
-  ((G (n > 10 & n <= 20)) & (F node1.mode = found_successor)) xor
-  ((G (n > 20 & n <= 30)) & (F node2.mode = found_successor)) xor
-  ((G (n > 30 | n <= 10)) & (F node3.mode = found_successor));
+  ((n > 10 & n <= 20) -> (F node1.mode = found_successor)) &
+  ((n > 20 & n <= 30) -> (F node2.mode = found_successor)) &
+  ((n > 30 | n <= 10) -> (F node3.mode = found_successor));
 
 -- Only one node in mode found_successor with others in mode waiting
 LTLSPEC
